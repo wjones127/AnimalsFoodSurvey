@@ -1,0 +1,177 @@
+---
+title: 'Survey Results: Food, Animals, and Commons'
+author: "Will Jones"
+date: "March 26, 2015"
+output: html_document
+---
+
+```{r, echo=FALSE, warning=FALSE}
+library(dplyr)
+library(magrittr)
+library(ggplot2)
+
+data <- read.csv("commons_food_animals_clean.csv") %>% tbl_df()
+
+attitude.labels <- c("Strongly disagree",
+                     "Disagree",
+                     "No opinion",
+                     "Agree",
+                     "Strongly Agree")
+
+
+data$attitudes.env <- factor(data$attitudes.env,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$attitudes.killing <- factor(data$attitudes.killing,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$attitudes.products <- factor(data$attitudes.products,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$attitudes.veggie.health <- factor(data$attitudes.veggie.health,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$attitudes.vegan.health <- factor(data$attitudes.vegan.health,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$attitudes.protein <- factor(data$attitudes.protein,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$attitudes.culture <- factor(data$attitudes.culture,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+
+data$commons.veggie.good <- factor(data$commons.veggie.good,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$commons.vegan.good <- factor(data$commons.vegan.good,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$commons.vegan.consistent <- factor(data$commons.vegan.consistent,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$commons.veggie.consistent <- factor(data$commons.veggie.consistent,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+data$commons.respect <- factor(data$commons.respect,
+    levels = 1:5, labels = attitude.labels, ordered = TRUE)
+
+```
+
+Over a couple weeks, the Quest and Greenboard have been collecting response for
+a survey, asking students questions about their beliefs and choices about animals and food,
+and whether and in what ways they believe Commons respects those beliefs and choices.
+
+We have recieved 117 responses to our survey.
+
+```{r, echo=FALSE}
+# For the purposes of anaylsis, we are going to group some
+# of the more unique responses with larger categories (i.e.
+# interpret 'vegan straight edge' as fitting in with the 
+# category of 'vegan'.)
+data %<>%
+  mutate(diet = as.character(diet),
+    diet = ifelse(diet == "don't buy meat (eat it at the scrounge)", 
+                       "I eat meat sparingly", diet),
+         diet = ifelse(diet == "vegan straight edge",
+                       "I am vegan", diet))
+
+ggplot(data, aes(x = reorder(diet, diet, function(x)-length(x)) )) + 
+  geom_bar() + 
+  labs(title = "Diets of Survey Respondents",
+       x = "Diet", y = "Count")
+
+ggplot(data, aes(x = time.at.reed)) + geom_bar() + 
+  labs(title = "Distribution of Class",
+       x = "Time respondent has been at Reed, in semesters",
+       y = "Count")
+
+ggplot(data, aes(x = reorder(commons.freq, commons.freq, function(x)-length(x) ))) + 
+  geom_bar() + 
+  labs(title = "How often do they eat at Commons?",
+       x = "Frequency of eating at Commons",
+       y = "Count")
+
+
+```
+
+We have a decent number of people responding saying they are vegetarian, vegan, and regular
+meat eaters. Those that eat meat sparingly are a little more sparse in our respondents, but
+we definetly can't draw any meaningful conclusions about pescetarians or other diets given
+their representation here.
+
+We did seem to get a good distribution across different graduating years of Reedies.
+
+
+## Attitudes and Beliefs About Animals and Food
+```{r, echo=FALSE}
+# When faceting across different diets, let's just examine the four main ones
+main.diets <- c("I am vegetarian",
+                "I am vegan",
+                "I regularly eat meat",
+                "I eat meat sparingly")
+data.diets <-
+  data %>%
+  filter(diet %in% main.diets)
+
+data.diets %>%
+  ggplot(aes(x =  attitudes.env) ) + 
+  geom_bar() + 
+  facet_wrap(~diet) + 
+  labs(title = "The mass production of meat posses a serious threat the environment.",
+       x = "Agreement with statement",
+       y = "Count")
+
+summary(data$attitudes.env)
+```
+
+The majority of respondents, 108 or 92%, either agree or strongly agree that the 
+mass production of meat posses a serious threat to the environment. Those that eat
+meat regularly are less likely to strongly agree with this statement, as compared
+with other diets, however.
+
+```{r, echo=FALSE}
+ggplot(data.diets, aes(x = attitudes.killing)) +
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = attitudes.products)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = attitudes.veggie.health)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = attitudes.vegan.health)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = attitudes.protein)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = attitudes.culture)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+```
+
+
+## On Commons
+
+
+```{r, echo=FALSE}
+ggplot(data.diets, aes(x = commons.veggie.good)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = commons.vegan.good)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = commons.veggie.consistent)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = commons.vegan.consistent)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = commons.respect)) + 
+  geom_bar() + 
+  facet_wrap(~diet)
+
+ggplot(data.diets, aes(x = diet, fill = commons.freq)) + 
+  geom_bar()
+```
+
+
