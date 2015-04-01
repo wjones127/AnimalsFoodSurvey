@@ -2,13 +2,15 @@
 title: 'Survey Results: Food, Animals, and Commons'
 author: "Will Jones"
 date: "March 26, 2015"
-output: html_document
+output:
+  html_document:
+    keep_md: yes
 ---
 
 ```{r, echo=FALSE, warning=FALSE}
-library(dplyr)
-library(magrittr)
-library(ggplot2)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(magrittr))
+suppressPackageStartupMessages(library(ggplot2))
 
 data <- read.csv("commons_food_animals_clean.csv") %>% tbl_df()
 
@@ -18,6 +20,8 @@ attitude.labels <- c("Strongly disagree",
                      "Agree",
                      "Strongly Agree")
 
+#data$commons.freq <-
+#  factor(data$commons.freq, )
 
 data$attitudes.env <- factor(data$attitudes.env,
     levels = 1:5, labels = attitude.labels, ordered = TRUE)
@@ -51,7 +55,7 @@ Over a couple weeks, the Quest and Greenboard have been collecting response for
 a survey, asking students questions about their beliefs and choices about animals and food,
 and whether and in what ways they believe Commons respects those beliefs and choices.
 
-We have recieved 117 responses to our survey.
+We have recieved 119 responses to our survey.
 
 ```{r, echo=FALSE}
 # For the purposes of anaylsis, we are going to group some
@@ -69,6 +73,7 @@ ggplot(data, aes(x = reorder(diet, diet, function(x)-length(x)) )) +
   geom_bar() + 
   labs(title = "Diets of Survey Respondents",
        x = "Diet", y = "Count")
+
 
 ggplot(data, aes(x = time.at.reed)) + geom_bar() + 
   labs(title = "Distribution of Class",
@@ -122,27 +127,41 @@ with other diets, however.
 ```{r, echo=FALSE}
 ggplot(data.diets, aes(x = attitudes.killing)) +
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "Killing animals in order to eat them is abusive.",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = attitudes.products)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "Raising animals to harvest products, such as eggs or milk, is animal abuse.",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = attitudes.veggie.health)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) +
+  labs(title = "A diet without meat is healthier.",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = attitudes.vegan.health)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) +
+  labs(title = "A diet without animal products is healthier",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = attitudes.protein)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "It is harder to consume enough protein without meat
+       in one's diet.",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = attitudes.culture)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "Eating meat is an important part of a culture I identify with.",
+       x = "Level of Agreement")
+
 ```
 
 
@@ -152,26 +171,59 @@ ggplot(data.diets, aes(x = attitudes.culture)) +
 ```{r, echo=FALSE}
 ggplot(data.diets, aes(x = commons.veggie.good)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "When Commons serves specials that are vegetarian,
+       they are good",
+       x = "Level of agreement")
 
 ggplot(data.diets, aes(x = commons.vegan.good)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) +
+  labs(title = "When Commons serves specials that are vegan,
+       they are good.",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = commons.veggie.consistent)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "Commons has vegetarian specials consistently.",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = commons.vegan.consistent)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "Commons has vegan specials consistenyly.",
+       x = "Level of agreement")
 
-ggplot(data.diets, aes(x = commons.respect)) + 
+ggplot(data.diets, aes(x = commons.respect, fill = commons.freq)) + 
   geom_bar() + 
-  facet_wrap(~diet)
+  facet_wrap(~diet) + 
+  labs(title = "I feel that commons respects my beliefs about food and animals. ",
+       x = "Level of Agreement")
+
+ggplot(data.diets, aes(x = commons.pigday)) + 
+  geom_bar() + 
+  facet_wrap(~diet) + 
+  labs(title = "I feel that commons respects my beliefs about food and animals. ",
+       x = "Level of Agreement")
 
 ggplot(data.diets, aes(x = diet, fill = commons.freq)) + 
-  geom_bar()
+  geom_bar() + 
+  labs(title = "Frequency of eating at Commons, by diet",
+       x = "Diet", y = "Frequency of eating at Commons")
 ```
 
+
+```{r, echo=FALSE}
+ggplot(data.diets, aes(x = commons.respect,
+                       fill = commons.freq)) +
+  geom_bar()
+
+data %>%
+  filter(diet == "I regularly eat meat") %>%
+  .$commons.respect %>%
+  summary()
+
+
+```
 
